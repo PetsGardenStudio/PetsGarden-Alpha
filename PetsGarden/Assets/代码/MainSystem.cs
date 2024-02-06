@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
 /// <summary>
 /// 主系统类，用于管理整个应用程序的核心功能和组件。
 /// 这个类作为应用程序的中心点，负责协调和初始化各个子系统。
@@ -54,6 +58,16 @@ public class BlockSystem
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
     /// </summary>
     private BlockSystem() { }
+
+    /// <summary>
+    /// 所有可以放置区块的位置，无论位置上有没有区块
+    /// </summary>
+    public HashSet<Vector2Int> allBlockSpots = new HashSet<Vector2Int>();
+    
+    /// <summary>
+    /// 所有区域
+    /// </summary>
+    public List<BlockArea> blockAreas = new List<BlockArea>();
 
     /// <summary>
     /// 获取地块系统类的唯一实例。这是一个公共的和静态的属性。
@@ -241,4 +255,39 @@ public class PetWorkShopSystem
     }
 
     // TODO: 添加宠物工坊系统所需的方法
+}
+
+/// <summary>
+/// 区域对象，包含该区域内所有地块的信息
+/// </summary>
+public class BlockArea { 
+
+    /// <summary>
+    /// 空构造函数，未来序列化/反序列化用得到
+    /// </summary>
+    public BlockArea() { }
+
+    /// <summary>
+    /// 区域内所有地块的位置和游戏对象引用字典
+    /// </summary>
+    public Dictionary<Vector2Int, GameObject> blocks = new Dictionary<Vector2Int, GameObject>();
+
+    /// <summary>
+    /// 当前区域的属性标签
+    /// </summary>
+    public AreaTag areaTag = new AreaTag();
+
+    // TODO：添加为区域增删和提取block的方法
+    // TODO：添加设置areaTag的方法
+}
+
+
+/// <summary>
+/// 区域属性标签，请注意这里是byte
+/// 使用byte的原因是考虑到不可能超过255个区域标签，且未来需要频繁进行服务器同步
+/// </summary>
+public enum AreaTag : byte { 
+    FIRE = 0,
+    GRASS = 1,
+    WATER = 2,
 }
