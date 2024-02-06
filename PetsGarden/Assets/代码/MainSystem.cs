@@ -33,10 +33,10 @@ public static class MainSystem
 }
 
 
-
 /// <summary>
 /// 单例模式下的地块系统类。用于管理和控制地块相关的操作和数据。
 /// 这个类使用单例设计模式，确保整个应用程序中只有一个地块系统实例。
+/// 是线程安全的
 /// </summary>
 public class BlockSystem
 {
@@ -46,6 +46,11 @@ public class BlockSystem
     private static BlockSystem onlyInstance = new BlockSystem();
 
     /// <summary>
+    /// 私有的锁对象
+    /// </summary>
+    private static readonly object _lock = new object();
+
+    /// <summary>
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
     /// </summary>
     private BlockSystem() { }
@@ -53,11 +58,15 @@ public class BlockSystem
     /// <summary>
     /// 获取地块系统类的唯一实例。这是一个公共的和静态的属性。
     /// 当外部代码需要访问地块系统实例时，将通过这个属性来获取。
+    /// 是线程安全的
     /// </summary>
     public static BlockSystem instance
     {
         get{
-            return onlyInstance;
+            lock (_lock)
+            {
+                return onlyInstance; 
+            }
         }
     }
 
@@ -68,6 +77,7 @@ public class BlockSystem
 /// <summary>
 /// 单例模式下的代币系统类。用于管理和控制代币和付款有关的功能。
 /// 这个类使用单例设计模式，确保整个应用程序中只有一个代币系统实例。
+/// 是线程安全的
 /// </summary>
 public class CurrencySystem
 {
@@ -77,6 +87,11 @@ public class CurrencySystem
     private static CurrencySystem onlyInstance = new CurrencySystem();
 
     /// <summary>
+    /// 私有的锁对象
+    /// </summary>
+    private static readonly object _lock = new object();
+
+    /// <summary>
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
     /// </summary>
     private CurrencySystem() { }
@@ -84,12 +99,16 @@ public class CurrencySystem
     /// <summary>
     /// 获取代币系统类的唯一实例。这是一个公共的和静态的属性。
     /// 当外部代码需要访问代币系统实例时，将通过这个属性来获取。
+    /// 是线程安全的
     /// </summary>
     public static CurrencySystem instance
     {
         get
         {
-            return onlyInstance;
+            lock (_lock)
+            {
+                return onlyInstance;
+            }
         }
     }
 
@@ -99,6 +118,7 @@ public class CurrencySystem
 /// <summary>
 /// 单例模式下的抽奖机系统类。用于管理和控制抽奖有关的功能。
 /// 这个类使用单例设计模式，确保整个应用程序中只有一个抽奖系统实例。
+/// 是线程安全的
 /// </summary>
 public class GachaSystem
 {
@@ -108,6 +128,11 @@ public class GachaSystem
     private static GachaSystem onlyInstance = new GachaSystem();
 
     /// <summary>
+    /// 私有的锁对象
+    /// </summary>
+    private static readonly object _lock = new object();
+
+    /// <summary>
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
     /// </summary>
     private GachaSystem() { }
@@ -115,12 +140,16 @@ public class GachaSystem
     /// <summary>
     /// 获取抽奖系统类的唯一实例。这是一个公共的和静态的属性。
     /// 当外部代码需要访问抽奖系统实例时，将通过这个属性来获取。
+    /// 是线程安全的
     /// </summary>
     public static GachaSystem instance
     {
         get
         {
-            return onlyInstance;
+            lock (_lock)
+            {
+                return onlyInstance;
+            }
         }
     }
 
@@ -130,6 +159,7 @@ public class GachaSystem
 /// <summary>
 /// 单例模式下的宠物系统类。用于管理和控制宠物有关的功能。
 /// 这个类使用单例设计模式，确保整个应用程序中只有一个宠物系统实例。
+/// 是线程安全的
 /// </summary>
 public class PetSystem
 {
@@ -137,6 +167,11 @@ public class PetSystem
     /// 宠物系统的单例实例。
     /// </summary>
     private static PetSystem onlyInstance = new PetSystem();
+
+    /// <summary>
+    /// 私有的锁对象
+    /// </summary>
+    private static readonly object _lock = new object();
 
     /// <summary>
     /// 宠物工坊系统的单例实例
@@ -151,12 +186,16 @@ public class PetSystem
     /// <summary>
     /// 获取宠物系统类的唯一实例。这是一个公共的和静态的属性。
     /// 当外部代码需要访问宠物系统实例时，将通过这个属性来获取。
+    /// 是线程安全的
     /// </summary>
     public static PetSystem instance
     {
         get
         {
-            return onlyInstance;
+            lock (_lock)
+            {
+                return onlyInstance;
+            }
         }
     }
 
@@ -166,6 +205,7 @@ public class PetSystem
 /// <summary>
 /// 单例模式下的宠物工坊系统类。用于管理和控制抽奖有关的功能。
 /// 这个类使用单例设计模式，确保整个应用程序中只有一个宠物工坊系统实例。
+/// 是线程安全的
 /// </summary>
 public class PetWorkShopSystem
 {
@@ -175,6 +215,11 @@ public class PetWorkShopSystem
     private static PetWorkShopSystem onlyInstance = new PetWorkShopSystem();
 
     /// <summary>
+    /// 私有的锁对象
+    /// </summary>
+    private static readonly object _lock = new object();
+
+    /// <summary>
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
     /// </summary>
     private PetWorkShopSystem() { }
@@ -182,12 +227,16 @@ public class PetWorkShopSystem
     /// <summary>
     /// 获取宠物工坊系统类的唯一实例。这是一个公共的和静态的属性。
     /// 当外部代码需要访问宠物工坊系统实例时，将通过这个属性来获取。
+    /// 是线程安全的
     /// </summary>
     public static PetWorkShopSystem instance
     {
         get
         {
-            return onlyInstance;
+            lock (_lock)
+            {
+                return onlyInstance;
+            }
         }
     }
 
