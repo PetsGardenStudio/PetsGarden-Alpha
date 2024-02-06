@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -59,15 +59,6 @@ public class BlockSystem
     /// </summary>
     private BlockSystem() { }
 
-    /// <summary>
-    /// 所有可以放置区块的位置，无论位置上有没有区块
-    /// </summary>
-    public HashSet<Vector2Int> allBlockSpots = new HashSet<Vector2Int>();
-    
-    /// <summary>
-    /// 所有区域
-    /// </summary>
-    public List<BlockArea> blockAreas = new List<BlockArea>();
 
     /// <summary>
     /// 获取地块系统类的唯一实例。这是一个公共的和静态的属性。
@@ -76,12 +67,76 @@ public class BlockSystem
     /// </summary>
     public static BlockSystem instance
     {
-        get{
+        get
+        {
             lock (_lock)
             {
-                return onlyInstance; 
+                return onlyInstance;
             }
         }
+    }
+
+    /// <summary>
+    /// 所有可以放置区块的位置，无论位置上有没有区块
+    /// </summary>
+    private HashSet<Vector2Int> allBlockSpots = new HashSet<Vector2Int>();
+
+    /// <summary>
+    /// 所有区域
+    /// </summary>
+    private List<BlockArea> areas = new List<BlockArea>();
+
+    /// <summary>
+    /// 在指定位置添加一个方块，并根据提供的区域标签将其分配到相应的区域中。
+    /// 如果指定位置已存在方块或没有合法的邻接区域，则不会添加方块。
+    /// </summary>
+    /// <param name="pos">要添加方块的二维位置。</param>
+    /// <param name="block">要添加的方块对象。</param>
+    /// <param name="tag">用于确定方块所属区域的区域标签。</param>
+    /// <returns>
+    /// 如果成功添加方块，则返回 true。
+    /// 如果指定位置已有方块或无法找到合法邻接区域，则返回 false。
+    /// </returns>
+    public bool addBlock(Vector2Int pos, GameObject block, AreaTag tag)
+    {
+        if (allBlockSpots.Contains(pos))
+        {
+            List<BlockArea> legalNeighborArea = new List<BlockArea>();
+            foreach (BlockArea area in areas)
+            {
+                if (!area.blockExists(pos))
+                {
+                    return false;
+                }
+                if (area.isLegalNeighbor(pos, tag))
+                {
+                    legalNeighborArea.Add(area);
+                }
+            }
+            if (legalNeighborArea.Count == 0)
+            {
+                BlockArea newArea = new BlockArea(tag);
+                newArea.addBlock(pos, block);
+                areas.Add(newArea);
+                return true;
+            }
+            else if (legalNeighborArea.Count == 1)
+            {
+                legalNeighborArea[0].addBlock(pos, block);
+                return true;
+            }
+            else
+            {
+                legalNeighborArea[0].addBlock(pos, block);
+                for (int i = 0 + 1; i < legalNeighborArea.Count; i++)
+                {
+                    legalNeighborArea[0].mergeWith(legalNeighborArea[i]);
+                    areas.Remove(legalNeighborArea[i]);
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     // TODO: 添加地块系统所需的方法
@@ -190,7 +245,7 @@ public class PetSystem
     /// <summary>
     /// 宠物工坊系统的单例实例
     /// </summary>
-    public static PetWorkShopSystem petWorkshopSystem = PetWorkShopSystem.instance;
+    public static PetWorkShopSystem petWorkshopSystem { get; } = PetWorkShopSystem.instance;
 
     /// <summary>
     /// 私有构造函数，防止外部通过new关键字创建类的实例。
@@ -260,23 +315,96 @@ public class PetWorkShopSystem
 /// <summary>
 /// 区域对象，包含该区域内所有地块的信息
 /// </summary>
-public class BlockArea { 
+public class BlockArea
+{
 
     /// <summary>
     /// 空构造函数，未来序列化/反序列化用得到
     /// </summary>
-    public BlockArea() { }
+    public BlockArea(AreaTag tag)
+    {
+        this.areaTag = tag;
+    }
 
     /// <summary>
     /// 区域内所有地块的位置和游戏对象引用字典
     /// </summary>
-    public Dictionary<Vector2Int, GameObject> blocks = new Dictionary<Vector2Int, GameObject>();
+    private Dictionary<Vector2Int, GameObject> blocks = new Dictionary<Vector2Int, GameObject>();
 
     /// <summary>
     /// 当前区域的属性标签
     /// </summary>
-    public AreaTag areaTag = new AreaTag();
+    public AreaTag areaTag { get; } = new AreaTag();
 
+    /// <summary>
+    /// 检查指定位置是否存在方块。
+    /// </summary>
+    /// <param name="pos">需要检查的二维位置。</param>
+    /// <returns>
+    /// 如果在指定位置存在方块，则返回 true。
+    /// 如果不存在方块，则返回 false。
+    /// </returns>
+    public bool blockExists(Vector2Int pos)
+    {
+        return blocks.ContainsKey(pos);
+    }
+
+    /// <summary>
+    /// 在指定位置添加一个方块。
+    /// 如果该位置已经存在方块，则不会执行添加操作。
+    /// </summary>
+    /// <param name="pos">要添加方块的二维位置。</param>
+    /// <param name="block">要添加的方块对象。</param>
+    /// <returns>
+    /// 如果方块被成功添加，则返回 true。
+    /// 如果该位置已存在方块，则返回 false。
+    /// </returns>
+    public bool addBlock(Vector2Int pos, GameObject block)
+    {
+        if (!blockExists(pos))
+        {
+            blocks.Add(pos, block);
+        }
+        return !blockExists(pos);
+    }
+
+    /// <summary>
+    /// 判断指定位置是否可以作为当前区域的合法邻接位置。
+    /// 要成为合法邻接位置，目标位置不应该已有方块，且目标区域标签应与当前区域标签相同。
+    /// 此外，目标位置应与当前区域中至少一个方块的上下左右相邻。
+    /// </summary>
+    /// <param name="pos">需要判断的坐标。</param>
+    /// <param name="targetTag">目标位置的区域标签。</param>
+    /// <returns>
+    /// 如果指定位置是合法的邻接位置，则返回 true。
+    /// 如果不是合法邻接位置，则返回 false。
+    /// </returns>
+    public bool isLegalNeighbor(Vector2Int pos, AreaTag targetTag)
+    {
+        if (blockExists(pos) || targetTag != areaTag) return false;
+        foreach (Vector2Int blockPos in blocks.Keys)
+        {
+            List<Vector2Int> surrondings = new List<Vector2Int>() {
+                blockPos + new Vector2Int(0, 1),
+                blockPos + new Vector2Int(0, -1),
+                blockPos + new Vector2Int(-1, 0),
+                blockPos + new Vector2Int(1, 0)
+            };
+            if (surrondings.Contains(pos)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 将当前区域与另一个区域合并。
+    /// 通过合并两个区域的方块字典来实现。
+    /// 合并操作是通过将两个字典的内容合并到一起，以确保所有方块都包含在合并后的区域中。
+    /// </summary>
+    /// <param name="other">要与之合并的另一个 BlockArea 对象。</param>
+    public void mergeWith(BlockArea other)
+    {
+        blocks = blocks.Union(other.blocks).ToDictionary(pair => pair.Key, pair => pair.Value);
+    }
     // TODO：添加为区域增删和提取block的方法
     // TODO：添加设置areaTag的方法
 }
@@ -286,7 +414,8 @@ public class BlockArea {
 /// 区域属性标签，请注意这里是byte
 /// 使用byte的原因是考虑到不可能超过255个区域标签，且未来需要频繁进行服务器同步
 /// </summary>
-public enum AreaTag : byte { 
+public enum AreaTag : byte
+{
     FIRE = 0,
     GRASS = 1,
     WATER = 2,
