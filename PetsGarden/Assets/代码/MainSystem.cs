@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 /// <summary>
 /// 主系统类，用于管理整个应用程序的核心功能和组件。
 /// 这个类作为应用程序的中心点，负责协调和初始化各个子系统。
@@ -34,7 +30,6 @@ public static class MainSystem
     /// 这个字段提供了全局访问点来处理与宠物系统相关的操作和数据。
     /// </summary>
     public static PetSystem petSystem = PetSystem.instance;
-
 }
 
 
