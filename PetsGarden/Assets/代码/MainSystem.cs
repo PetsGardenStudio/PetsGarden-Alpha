@@ -90,7 +90,7 @@ public class BlockSystem
     /// 在指定位置添加一个方块，并根据提供的区域标签将其分配到相应的区域中。
     /// 如果指定位置已存在方块或没有合法的邻接区域，则不会添加方块。
     /// </summary>
-    /// <param name="pos">要添加方块的二维位置。</param>
+    /// <param name="pos">要添加方块的坐标。</param>
     /// <param name="block">要添加的方块对象。</param>
     /// <param name="tag">用于确定方块所属区域的区域标签。</param>
     /// <returns>
@@ -416,7 +416,16 @@ public class BlockArea
 /// </summary>
 public enum AreaTag : byte
 {
+    /// <summary>
+    /// 火属性地块
+    /// </summary>
     FIRE = 0,
+    /// <summary>
+    /// 草属性地块
+    /// </summary>
     GRASS = 1,
+    /// <summary>
+    /// 水属性地块
+    /// </summary>
     WATER = 2,
 }
