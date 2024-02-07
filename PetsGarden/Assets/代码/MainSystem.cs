@@ -181,7 +181,29 @@ public class CurrencySystem
         }
     }
 
-    // TODO: 添加代币系统所需的方法
+    /// <summary>
+    /// 获取当前对象的金币数量。
+    /// 这个属性只能在类内部被修改，以确保对硬币数量的更改是受控的。
+    /// </summary>
+    public int coins { get; private set; } = 0;
+
+    /// <summary>
+    /// 向账户中存入指定数量的金币。
+    /// </summary>
+    /// <param name="num">要存入的金币数量。</param>
+    /// <returns>存入金币后的总金币数量。</returns>
+    public int deposit(int num) {
+        return coins += num;
+    }
+
+    /// <summary>
+    /// 向账户中取出指定数量的金币。
+    /// </summary>
+    /// <param name="num">要取出的金币数量。</param>
+    /// <returns>取出金币后的总金币数量。</returns>
+    public int withdraw(int num) { 
+        return coins -= num;
+    }
 }
 
 /// <summary>
