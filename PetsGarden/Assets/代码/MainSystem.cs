@@ -283,6 +283,27 @@ public class GachaSystem
         }
     }
 
+    private int gachaCounter = 0;
+    private int gachaThreshold = 50;
+    private float basicProbablity = 0.10f;
+    private float probablityIncrement = 0.02f;
+
+    /// <summary>
+    /// 这是一个没完成的方法！
+    /// </summary>
+    /// <returns></returns>
+    public Block gachaOnce() { 
+        // TODO: 等文档完善
+        gachaCounter++;
+        float currentProbablity = gachaCounter <= gachaThreshold ? basicProbablity : Mathf.Min(basicProbablity + probablityIncrement * (gachaCounter - gachaThreshold), 1);
+        if (Random.Range(0.0f, 1.0f) <= currentProbablity)
+        {
+            gachaCounter = 0;
+            return new Block();
+        }
+        return null;
+    }
+
     // TODO: 添加抽奖系统所需的方法
 }
 
