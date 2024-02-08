@@ -283,9 +283,16 @@ public class GachaSystem
         }
     }
 
+    // 记录当前连续抽奖的次数。
     private int gachaCounter = 0;
+
+    // 当连续抽奖次数达到此阈值时，抽奖概率的增长将放缓。
     private int gachaThreshold = 50;
+
+    // 基础抽奖概率。
     private float basicProbablity = 0.10f;
+
+    // 每超过抽奖阈值一次，抽奖概率的增量。
     private float probablityIncrement = 0.02f;
 
     /// <summary>
